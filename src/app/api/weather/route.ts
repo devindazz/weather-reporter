@@ -6,9 +6,11 @@ const BASE_URL = "https://api.openweathermap.org/data/2.5"
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const city = searchParams.get("city")
+  const lat = searchParams.get("lat")
+  const lon = searchParams.get("lon")
 
-  if (!city) {
-    return NextResponse.json({ error: "City parameter is required" }, { status: 400 })
+  if (!city && (!lat || !lon)) {
+    return NextResponse.json({ error: "City name or coordinates (lat, lon) are required" }, { status: 400 })
   }
 
   if (!OPENWEATHER_API_KEY) {
@@ -16,14 +18,22 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    let weatherUrl: string
+
+    if (lat && lon) {
+      // Use coordinates for weather data
+      weatherUrl = `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric`
+    } else {
+      // Use city name for weather data
+      weatherUrl = `${BASE_URL}/weather?q=${encodeURIComponent(city!)}&appid=${OPENWEATHER_API_KEY}&units=metric`
+    }
+
     // Get current weather data
-    const weatherResponse = await fetch(
-      `${BASE_URL}/weather?q=${encodeURIComponent(city)}&appid=${OPENWEATHER_API_KEY}&units=metric`,
-    )
+    const weatherResponse = await fetch(weatherUrl)
 
     if (!weatherResponse.ok) {
       if (weatherResponse.status === 404) {
-        return NextResponse.json({ error: "City not found" }, { status: 404 })
+        return NextResponse.json({ error: "Location not found" }, { status: 404 })
       }
       throw new Error("Failed to fetch weather data")
     }
