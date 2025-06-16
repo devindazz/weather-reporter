@@ -127,9 +127,9 @@ export default function WeatherReporter() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-black p-4">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Weather Reporter</h1>
+        <h1 className="text-3xl font-bold text-center mb-8 text-gray-100">Weather Reporter</h1>
 
         {/* Search Form */}
         <form onSubmit={handleSubmit} className="mb-6">
@@ -139,7 +139,7 @@ export default function WeatherReporter() {
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="Enter city name..."
-              className="flex-1 text-black px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+              className="flex-1 text-white px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
             />
             <button
               type="submit"
