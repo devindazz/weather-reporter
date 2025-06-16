@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Search, Thermometer, Droplets, Wind, Sun, MapPin, RotateCcw } from "lucide-react"
+import { Search, Thermometer, Droplets, Wind, Sun, MapPin } from "lucide-react"
 
 interface WeatherData {
   name: string
@@ -26,9 +26,8 @@ export default function WeatherReporter() {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [locationStatus, setLocationStatus] = useState<"detecting" | "success" | "denied" | "error" | "default">(
-    "detecting",
-  )
+  const [locationLoading, setLocationLoading] = useState(false)
+  const [isUserLocation, setIsUserLocation] = useState(false)
 
   const fetchWeather = async (cityName: string) => {
     setLoading(true)
@@ -43,6 +42,7 @@ export default function WeatherReporter() {
       }
 
       setWeatherData(data)
+      setIsUserLocation(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
       setWeatherData(null)
@@ -52,7 +52,7 @@ export default function WeatherReporter() {
   }
 
   const fetchWeatherByCoordinates = async (lat: number, lon: number) => {
-    setLoading(true)
+    setLocationLoading(true)
     setError("")
 
     try {
@@ -64,25 +64,22 @@ export default function WeatherReporter() {
       }
 
       setWeatherData(data)
-      setLocationStatus("success")
+      setIsUserLocation(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
       setWeatherData(null)
-      setLocationStatus("error")
     } finally {
-      setLoading(false)
+      setLocationLoading(false)
     }
   }
 
   const getUserLocation = () => {
-    setLocationStatus("detecting")
-
     if (!navigator.geolocation) {
-      console.log("Geolocation not supported, falling back to Colombo")
-      setLocationStatus("default")
-      fetchWeather("Colombo, Sri Lanka")
+      setError("Geolocation is not supported by this browser")
       return
     }
+
+    setLocationLoading(true)
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -90,16 +87,17 @@ export default function WeatherReporter() {
         fetchWeatherByCoordinates(latitude, longitude)
       },
       (error) => {
-        console.log("Geolocation error:", error.message)
+        setLocationLoading(false)
 
         if (error.code === error.PERMISSION_DENIED) {
-          setLocationStatus("denied")
+          setError("Location access denied. Please allow location access and try again.")
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          setError("Location information is unavailable.")
+        } else if (error.code === error.TIMEOUT) {
+          setError("Location request timed out.")
         } else {
-          setLocationStatus("error")
+          setError("An error occurred while retrieving location.")
         }
-
-        // Fallback to Colombo
-        fetchWeather("Colombo, Sri Lanka")
       },
       {
         enableHighAccuracy: true,
@@ -109,9 +107,9 @@ export default function WeatherReporter() {
     )
   }
 
-  // Try to get user location on component mount
+  // Load Colombo weather by default on component mount
   useEffect(() => {
-    getUserLocation()
+    fetchWeather("Colombo, Sri Lanka")
   }, [])
 
   const searchWeather = async () => {
@@ -121,7 +119,6 @@ export default function WeatherReporter() {
     }
 
     await fetchWeather(city)
-    setLocationStatus("default") // Reset location status when manually searching
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -129,56 +126,20 @@ export default function WeatherReporter() {
     searchWeather()
   }
 
-  const handleRetryLocation = () => {
-    getUserLocation()
-  }
-
-  const getLocationStatusMessage = () => {
-    switch (locationStatus) {
-      case "detecting":
-        return "📍 Detecting your location..."
-      case "success":
-        return "📍 Showing weather for your location"
-      case "denied":
-        return "📍 Location access denied - showing Colombo weather"
-      case "error":
-        return "📍 Location detection failed - showing Colombo weather"
-      case "default":
-        return "📍 Showing default location (Colombo)"
-      default:
-        return ""
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Weather Reporter</h1>
 
-        {/* Location Status */}
-        <div className="mb-4 flex items-center justify-between bg-white rounded-lg p-3 shadow-sm">
-          <span className="text-sm text-gray-600">{getLocationStatusMessage()}</span>
-          {(locationStatus === "denied" || locationStatus === "error") && (
-            <button
-              onClick={handleRetryLocation}
-              disabled={loading}
-              className="flex items-center gap-1 px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-            >
-              <RotateCcw className="w-3 h-3" />
-              Retry
-            </button>
-          )}
-        </div>
-
         {/* Search Form */}
-        <form onSubmit={handleSubmit} className="mb-8">
+        <form onSubmit={handleSubmit} className="mb-6">
           <div className="flex gap-2">
             <input
               type="text"
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="Enter city name..."
-              className="flex-1 text-black px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:gray-blue-500"
+              className="flex-1 text-black px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
             />
             <button
               type="submit"
@@ -188,17 +149,23 @@ export default function WeatherReporter() {
               <Search className="w-4 h-4" />
               {loading ? "Searching..." : "Search"}
             </button>
-            <button
-              type="button"
-              onClick={handleRetryLocation}
-              disabled={loading}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              title="Get my location"
-            >
-              <MapPin className="w-4 h-4" />
-            </button>
           </div>
         </form>
+
+        {/* Get My Location Button */}
+        <div className="mb-6 text-center">
+          <button
+            onClick={getUserLocation}
+            disabled={locationLoading}
+            className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
+          >
+            <MapPin className="w-4 h-4" />
+            {locationLoading ? "Getting Location..." : "Get My Location"}
+          </button>
+          <p className="text-sm text-gray-500 mt-2">
+            {isUserLocation ? "📍 Showing weather for your location" : "📍 Showing weather for Colombo, Sri Lanka"}
+          </p>
+        </div>
 
         {/* Error Message */}
         {error && <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">{error}</div>}
