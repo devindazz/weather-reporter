@@ -128,7 +128,23 @@ export default function WeatherReporter() {
     searchWeather()
   }
 
-  
+  const getWeatherIcon = (weatherMain: string) => {
+    switch (weatherMain?.toLowerCase()) {
+      case "clear":
+        return <Sun className="w-8 h-8 text-yellow-500" />
+      case "clouds":
+        return <Cloud className="w-8 h-8 text-gray-500" />
+      case "rain":
+      case "drizzle":
+        return <CloudRain className="w-8 h-8 text-blue-500" />
+      case "snow":
+        return <CloudSnow className="w-8 h-8 text-blue-300" />
+      case "thunderstorm":
+        return <Zap className="w-8 h-8 text-purple-500" />
+      default:
+        return <Sun className="w-8 h-8 text-yellow-500" />
+    }
+  }
 
   const getBackgroundGradient = () => {
     if (!weatherData?.weather?.[0]) return "from-blue-400 to-blue-600"
