@@ -1,0 +1,9 @@
+{
+  "buildCommand": "npm run build:ignore-errors",
+  "framework": "nextjs",
+  "functions": {
+    "app/api/weather/route.ts": {
+      "maxDuration": 30
+    }
+  }
+}
