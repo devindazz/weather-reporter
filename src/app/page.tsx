@@ -268,61 +268,56 @@ export default function WeatherReporter() {
           {/* Weather Data Display */}
           {weatherData && !loading && (
             <div className="space-y-6">
-              {/* Main Weather Card */}
-              <div className="bg-white/20 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/30">
-                <div className="text-center mb-8">
-                  <h2 className="text-4xl font-bold text-white mb-2">{weatherData.name}</h2>
-                  <div className="flex items-center justify-center gap-4 mb-4">
-                    {weatherData.weather?.[0] && getWeatherIcon(weatherData.weather[0].main)}
-                    <span className="text-6xl font-bold text-white">
-                      {weatherData.main?.temp ? Math.round(weatherData.main.temp) : "N/A"}°C
-                    </span>
-                  </div>
-                  <p className="text-white/90 text-xl capitalize mb-2">{weatherData.weather?.[0]?.description}</p>
+              {/* City Name Header */}
+              <div className="text-center">
+                <h2 className="text-4xl font-bold text-white mb-2">{weatherData.name}</h2>
+                <p className="text-white/90 text-xl capitalize">{weatherData.weather?.[0]?.description}</p>
+              </div>
+
+              {/* Weather Stats Grid - Now includes main temperature */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Main Temperature */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
+                  {weatherData.weather?.[0] && getWeatherIcon(weatherData.weather[0].main)}
+                  <p className="text-white/80 text-sm mb-1 mt-3">Current Temperature</p>
+                  <p className="text-white text-3xl font-bold">
+                    {weatherData.main?.temp ? Math.round(weatherData.main.temp) : "N/A"}°C
+                  </p>
                   {weatherData.main.feels_like && (
-                    <p className="text-white/70">Feels like {Math.round(weatherData.main.feels_like)}°C</p>
+                    <p className="text-white/60 text-sm mt-1">Feels like {Math.round(weatherData.main.feels_like)}°C</p>
                   )}
                 </div>
 
-                {/* Weather Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {/* Temperature Range */}
-                  {weatherData.main.temp_min && weatherData.main.temp_max && (
-                    <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
-                      <Thermometer className="w-8 h-8 text-orange-300 mx-auto mb-3" />
-                      <p className="text-white/80 text-sm mb-1">Temperature Range</p>
-                      <p className="text-white text-xl font-bold">
-                        {Math.round(weatherData.main.temp_min)}° / {Math.round(weatherData.main.temp_max)}°
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Humidity */}
+                {/* Temperature Range */}
+                {weatherData.main.temp_min && weatherData.main.temp_max && (
                   <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
-                    <Droplets className="w-8 h-8 text-blue-300 mx-auto mb-3" />
-                    <p className="text-white/80 text-sm mb-1">Humidity</p>
-                    <p className="text-white text-xl font-bold">{weatherData.main.humidity}%</p>
+                    <Thermometer className="w-8 h-8 text-orange-300 mx-auto mb-3" />
+                    <p className="text-white/80 text-sm mb-1">Temperature Range</p>
+                    <p className="text-white text-xl font-bold">
+                      {Math.round(weatherData.main.temp_min)}° / {Math.round(weatherData.main.temp_max)}°
+                    </p>
                   </div>
+                )}
 
-                  {/* Wind Speed */}
-                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
-                    <Wind className="w-8 h-8 text-green-300 mx-auto mb-3" />
-                    <p className="text-white/80 text-sm mb-1">Wind Speed</p>
-                    <p className="text-white text-xl font-bold">{weatherData.wind.speed} m/s</p>
-                  </div>
+                {/* Humidity */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
+                  <Droplets className="w-8 h-8 text-blue-300 mx-auto mb-3" />
+                  <p className="text-white/80 text-sm mb-1">Humidity</p>
+                  <p className="text-white text-xl font-bold">{weatherData.main.humidity}%</p>
+                </div>
 
-                  {/* UV Index */}
-                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
-                    <Sun className="w-8 h-8 text-yellow-300 mx-auto mb-3" />
-                    <p className="text-white/80 text-sm mb-1">UV Index</p>
-                    <p className="text-white text-xl font-bold">{weatherData.uv || "N/A"}</p>
-                  </div>
+                {/* Wind Speed */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
+                  <Wind className="w-8 h-8 text-green-300 mx-auto mb-3" />
+                  <p className="text-white/80 text-sm mb-1">Wind Speed</p>
+                  <p className="text-white text-xl font-bold">{weatherData.wind.speed} m/s</p>
+                </div>
 
-                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
-                    <Sun className="w-8 h-8 text-yellow-300 mx-auto mb-3" />
-                    <p className="text-white/80 text-sm mb-1">Temperature</p>
-                    <p className="text-white text-xl font-bold">{weatherData.main?.temp ? Math.round(weatherData.main.temp) + "°C" : "N/A"}</p>
-                  </div>
+                {/* UV Index */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
+                  <Sun className="w-8 h-8 text-yellow-300 mx-auto mb-3" />
+                  <p className="text-white/80 text-sm mb-1">UV Index</p>
+                  <p className="text-white text-xl font-bold">{weatherData.uv || "N/A"}</p>
                 </div>
               </div>
 
