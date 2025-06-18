@@ -147,7 +147,7 @@ export default function WeatherReporter() {
   }
 
   const getBackgroundGradient = () => {
-    if (!weatherData?.weather?.[0]) return "from-blue-100 to-blue-200"
+    if (!weatherData?.weather?.[0]) return "from-blue-400 to-blue-600"
 
     const weatherMain = weatherData.weather[0].main.toLowerCase()
     const hour = new Date().getHours()
@@ -274,7 +274,9 @@ export default function WeatherReporter() {
                   <h2 className="text-4xl font-bold text-white mb-2">{weatherData.name}</h2>
                   <div className="flex items-center justify-center gap-4 mb-4">
                     {weatherData.weather?.[0] && getWeatherIcon(weatherData.weather[0].main)}
-                    <span className="text-6xl font-bold text-white">{Math.round(weatherData.main.temp)}°C</span>
+                    <span className="text-6xl font-bold text-white">
+                      {weatherData.main?.temp ? Math.round(weatherData.main.temp) : "N/A"}°C
+                    </span>
                   </div>
                   <p className="text-white/90 text-xl capitalize mb-2">{weatherData.weather?.[0]?.description}</p>
                   {weatherData.main.feels_like && (
@@ -314,6 +316,12 @@ export default function WeatherReporter() {
                     <Sun className="w-8 h-8 text-yellow-300 mx-auto mb-3" />
                     <p className="text-white/80 text-sm mb-1">UV Index</p>
                     <p className="text-white text-xl font-bold">{weatherData.uv || "N/A"}</p>
+                  </div>
+
+                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
+                    <Sun className="w-8 h-8 text-yellow-300 mx-auto mb-3" />
+                    <p className="text-white/80 text-sm mb-1">Temperature</p>
+                    <p className="text-white text-xl font-bold">{weatherData.main?.temp ? Math.round(weatherData.main.temp) + "°C" : "N/A"}</p>
                   </div>
                 </div>
               </div>
