@@ -147,7 +147,7 @@ export default function WeatherReporter() {
   }
 
   const getBackgroundGradient = () => {
-    if (!weatherData?.weather?.[0]) return "from-blue-400 to-blue-600"
+    if (!weatherData?.weather?.[0]) return "from-blue-100 to-blue-200"
 
     const weatherMain = weatherData.weather[0].main.toLowerCase()
     const hour = new Date().getHours()
