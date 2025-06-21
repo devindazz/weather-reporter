@@ -238,40 +238,44 @@ export default function WeatherReporter() {
           </div>
 
           {/* Search Section */}
-          <div className="bg-white/20 backdrop-blur-md rounded-3xl p-6 mb-6 shadow-2xl border border-white/30">
+          {/* Search Section */}
+          <div className="bg-white/20 backdrop-blur-md rounded-3xl p-4 sm:p-6 mb-6 shadow-2xl border border-white/30">
             <form onSubmit={handleSubmit} className="mb-4">
-              <div className="flex gap-3">
+              {/* Mobile: Stack vertically, Desktop: Side by side */}
+              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
                   <input
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     placeholder="Search for any city..."
-                    className="w-full px-6 py-4 bg-white/90 backdrop-blur-sm rounded-2xl border-0 focus:outline-none focus:ring-4 focus:ring-white/50 text-gray-800 placeholder-gray-500 text-lg shadow-lg"
+                    className="w-full px-4 sm:px-6 py-3 sm:py-4 pr-12 bg-white/90 backdrop-blur-sm rounded-2xl border-0 focus:outline-none focus:ring-4 focus:ring-white/50 text-gray-800 placeholder-gray-500 text-base sm:text-lg shadow-lg"
                   />
-                  <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-8 py-4 bg-white/90 hover:bg-white text-gray-800 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white/90 hover:bg-white text-gray-800 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
                 >
-                  {loading ? "Searching..." : "Search"}
+                  <Search className="w-4 h-4 sm:hidden" />
+                  <span>{loading ? "Searching..." : "Search"}</span>
                 </button>
               </div>
             </form>
 
-           
+            {/* Get Location Button */}
             <div className="text-center">
               <button
                 onClick={getUserLocation}
                 disabled={locationLoading}
-                className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
               >
-                <MapPin className="w-5 h-5" />
-                {locationLoading ? "Getting Location..." : "Use My Location"}
+                <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">{locationLoading ? "Getting Location..." : "Use My Location"}</span>
+                <span className="sm:hidden">{locationLoading ? "Getting..." : "My Location"}</span>
               </button>
-              <p className="text-white/80 text-sm mt-3">
+              <p className="text-white/80 text-xs sm:text-sm mt-2 sm:mt-3 px-2">
                 {isUserLocation ? "📍 Your current location" : "📍 Default: Colombo, Sri Lanka"}
               </p>
             </div>
