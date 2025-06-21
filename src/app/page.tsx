@@ -102,7 +102,7 @@ export default function WeatherReporter() {
       setWeatherData(data)
       setIsUserLocation(true)
     } catch (err) {
-      // Also apply minimum loading time for errors
+      //  apply minimum loading time for errors
       const elapsedTime = Date.now() - startTime
       const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime)
 
@@ -217,7 +217,7 @@ export default function WeatherReporter() {
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${getBackgroundGradient()} transition-all duration-1000`}>
-      {/* Background Pattern */}
+   
       <div className="absolute inset-0 bg-black/10"></div>
       <div className="absolute inset-0 opacity-30">
         <div
@@ -231,7 +231,7 @@ export default function WeatherReporter() {
 
       <div className="relative z-10 p-4 min-h-screen">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
+          
           <div className="text-center mb-8 pt-8">
             <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">Weather Reporter</h1>
             <p className="text-white/80 text-lg">Your personal weather companion</p>
@@ -261,7 +261,7 @@ export default function WeatherReporter() {
               </div>
             </form>
 
-            {/* Get Location Button */}
+           
             <div className="text-center">
               <button
                 onClick={getUserLocation}
@@ -362,7 +362,6 @@ export default function WeatherReporter() {
                 <p className="text-white/90 text-xl capitalize">{weatherData.weather?.[0]?.description}</p>
               </div>
 
-              {/* Weather Stats Grid - Now includes main temperature */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Main Temperature */}
                 <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
@@ -409,7 +408,7 @@ export default function WeatherReporter() {
                 </div>
               </div>
 
-              {/* Footer */}
+          
               <div className="text-center text-white/60 text-sm">
                 <p>Last updated: {new Date().toLocaleTimeString()}</p>
               </div>
