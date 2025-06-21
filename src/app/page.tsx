@@ -32,9 +32,14 @@ export default function WeatherReporter() {
   const [locationLoading, setLocationLoading] = useState(false)
   const [isUserLocation, setIsUserLocation] = useState(false)
 
+ 
+  const MIN_LOADING_TIME = 2000 
+
   const fetchWeather = async (cityName: string) => {
     setLoading(true)
     setError("")
+
+    const startTime = Date.now()
 
     try {
       const response = await fetch(`/api/weather?city=${encodeURIComponent(cityName)}`)
@@ -44,9 +49,26 @@ export default function WeatherReporter() {
         throw new Error(data.error || "Failed to fetch weather data")
       }
 
+      // Calculate remaining time to meet minimum loading duration
+      const elapsedTime = Date.now() - startTime
+      const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime)
+
+      // Wait for remaining time if needed
+      if (remainingTime > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remainingTime))
+      }
+
       setWeatherData(data)
       setIsUserLocation(false)
     } catch (err) {
+      // Also apply minimum loading time for errors
+      const elapsedTime = Date.now() - startTime
+      const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime)
+
+      if (remainingTime > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remainingTime))
+      }
+
       setError(err instanceof Error ? err.message : "An error occurred")
       setWeatherData(null)
     } finally {
@@ -58,6 +80,8 @@ export default function WeatherReporter() {
     setLocationLoading(true)
     setError("")
 
+    const startTime = Date.now()
+
     try {
       const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`)
       const data = await response.json()
@@ -66,9 +90,26 @@ export default function WeatherReporter() {
         throw new Error(data.error || "Failed to fetch weather data")
       }
 
+      // Calculate remaining time to meet minimum loading duration
+      const elapsedTime = Date.now() - startTime
+      const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime)
+
+      // Wait for remaining time if needed
+      if (remainingTime > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remainingTime))
+      }
+
       setWeatherData(data)
       setIsUserLocation(true)
     } catch (err) {
+      // Also apply minimum loading time for errors
+      const elapsedTime = Date.now() - startTime
+      const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime)
+
+      if (remainingTime > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remainingTime))
+      }
+
       setError(err instanceof Error ? err.message : "An error occurred")
       setWeatherData(null)
     } finally {
@@ -147,7 +188,7 @@ export default function WeatherReporter() {
   }
 
   const getBackgroundGradient = () => {
-    if (!weatherData?.weather?.[0]) return "from-blue-100 to-blue-600"
+    if (!weatherData?.weather?.[0]) return "from-blue-400 to-blue-600"
 
     const weatherMain = weatherData.weather[0].main.toLowerCase()
     const hour = new Date().getHours()
@@ -244,43 +285,49 @@ export default function WeatherReporter() {
           )}
 
           {/* Loading State */}
-          {loading && !weatherData && (
+          {(loading || locationLoading) && !weatherData && (
             <div className="bg-white/20 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/30">
               <div className="flex flex-col items-center justify-center space-y-6">
                 {/* Weather Loading Animation */}
                 <div className="relative">
                   {/* Spinning Sun */}
-                  <div className="animate-spin">
+                  <div className="animate-spin" style={{ animationDuration: "3s" }}>
                     <Sun className="w-16 h-16 text-yellow-300" />
                   </div>
                   {/* Floating Clouds */}
-                  <div className="absolute -top-2 -right-2 animate-bounce">
+                  <div className="absolute -top-2 -right-2 animate-bounce" style={{ animationDuration: "2s" }}>
                     <Cloud className="w-8 h-8 text-white/60" />
                   </div>
-                  <div className="absolute -bottom-2 -left-2 animate-pulse">
+                  <div className="absolute -bottom-2 -left-2 animate-pulse" style={{ animationDuration: "1.5s" }}>
                     <Droplets className="w-6 h-6 text-blue-300" />
                   </div>
                 </div>
 
                 {/* Loading Text */}
                 <div className="text-center">
-                  <h3 className="text-2xl font-bold text-white mb-2">Getting Weather Data</h3>
-                  <p className="text-white/80">Please wait while we fetch the latest weather information...</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                    {locationLoading ? "Getting Your Location" : "Getting Weather Data"}
+                  </h3>
+                  <p className="text-white/80">
+                    {locationLoading
+                      ? "Please wait while we determine your location..."
+                      : "Please wait while we fetch the latest weather information..."}
+                  </p>
                 </div>
 
                 {/* Animated Progress Dots */}
                 <div className="flex space-x-2">
                   <div
                     className="w-3 h-3 bg-white/60 rounded-full animate-bounce"
-                    style={{ animationDelay: "0ms" }}
+                    style={{ animationDelay: "0ms", animationDuration: "1s" }}
                   ></div>
                   <div
                     className="w-3 h-3 bg-white/60 rounded-full animate-bounce"
-                    style={{ animationDelay: "150ms" }}
+                    style={{ animationDelay: "200ms", animationDuration: "1s" }}
                   ></div>
                   <div
                     className="w-3 h-3 bg-white/60 rounded-full animate-bounce"
-                    style={{ animationDelay: "300ms" }}
+                    style={{ animationDelay: "400ms", animationDuration: "1s" }}
                   ></div>
                 </div>
 
@@ -288,7 +335,11 @@ export default function WeatherReporter() {
                 <div className="w-full mt-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="bg-white/10 rounded-2xl p-6 animate-pulse">
+                      <div
+                        key={i}
+                        className="bg-white/10 rounded-2xl p-6 animate-pulse"
+                        style={{ animationDuration: `${1.5 + i * 0.2}s` }}
+                      >
                         <div className="flex flex-col items-center space-y-3">
                           <div className="w-12 h-12 bg-white/20 rounded-full"></div>
                           <div className="h-4 w-20 bg-white/20 rounded"></div>
@@ -303,7 +354,7 @@ export default function WeatherReporter() {
           )}
 
           {/* Weather Data Display */}
-          {weatherData && !loading && (
+          {weatherData && !loading && !locationLoading && (
             <div className="space-y-6">
               {/* City Name Header */}
               <div className="text-center">
