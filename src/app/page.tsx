@@ -147,7 +147,7 @@ export default function WeatherReporter() {
   }
 
   const getBackgroundGradient = () => {
-    if (!weatherData?.weather?.[0]) return "from-blue-100 to-blue-200"
+    if (!weatherData?.weather?.[0]) return "from-blue-100 to-blue-600"
 
     const weatherMain = weatherData.weather[0].main.toLowerCase()
     const hour = new Date().getHours()
@@ -246,20 +246,57 @@ export default function WeatherReporter() {
           {/* Loading State */}
           {loading && !weatherData && (
             <div className="bg-white/20 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/30">
-              <div className="animate-pulse">
-                <div className="h-8 bg-white/30 rounded-2xl mb-8"></div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="bg-white/20 rounded-2xl p-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-white/30 rounded-full"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-white/30 rounded mb-3"></div>
-                          <div className="h-8 bg-white/30 rounded"></div>
+              <div className="flex flex-col items-center justify-center space-y-6">
+                {/* Weather Loading Animation */}
+                <div className="relative">
+                  {/* Spinning Sun */}
+                  <div className="animate-spin">
+                    <Sun className="w-16 h-16 text-yellow-300" />
+                  </div>
+                  {/* Floating Clouds */}
+                  <div className="absolute -top-2 -right-2 animate-bounce">
+                    <Cloud className="w-8 h-8 text-white/60" />
+                  </div>
+                  <div className="absolute -bottom-2 -left-2 animate-pulse">
+                    <Droplets className="w-6 h-6 text-blue-300" />
+                  </div>
+                </div>
+
+                {/* Loading Text */}
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-white mb-2">Getting Weather Data</h3>
+                  <p className="text-white/80">Please wait while we fetch the latest weather information...</p>
+                </div>
+
+                {/* Animated Progress Dots */}
+                <div className="flex space-x-2">
+                  <div
+                    className="w-3 h-3 bg-white/60 rounded-full animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  ></div>
+                  <div
+                    className="w-3 h-3 bg-white/60 rounded-full animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  ></div>
+                  <div
+                    className="w-3 h-3 bg-white/60 rounded-full animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  ></div>
+                </div>
+
+                {/* Weather Cards Skeleton */}
+                <div className="w-full mt-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="bg-white/10 rounded-2xl p-6 animate-pulse">
+                        <div className="flex flex-col items-center space-y-3">
+                          <div className="w-12 h-12 bg-white/20 rounded-full"></div>
+                          <div className="h-4 w-20 bg-white/20 rounded"></div>
+                          <div className="h-8 w-16 bg-white/20 rounded"></div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
