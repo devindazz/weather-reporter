@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       console.warn("Failed to fetch UV index:", error)
     }
 
-    // Format the response
+    // Format response
     const formattedData = {
       name: weatherData.name,
       main: {

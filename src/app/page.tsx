@@ -32,9 +32,14 @@ export default function WeatherReporter() {
   const [locationLoading, setLocationLoading] = useState(false)
   const [isUserLocation, setIsUserLocation] = useState(false)
 
+ 
+  const MIN_LOADING_TIME = 2000 
+
   const fetchWeather = async (cityName: string) => {
     setLoading(true)
     setError("")
+
+    const startTime = Date.now()
 
     try {
       const response = await fetch(`/api/weather?city=${encodeURIComponent(cityName)}`)
@@ -44,9 +49,26 @@ export default function WeatherReporter() {
         throw new Error(data.error || "Failed to fetch weather data")
       }
 
+      // Calculate remaining time to meet minimum loading duration
+      const elapsedTime = Date.now() - startTime
+      const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime)
+
+      // Wait for remaining time if needed
+      if (remainingTime > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remainingTime))
+      }
+
       setWeatherData(data)
       setIsUserLocation(false)
     } catch (err) {
+      // Also apply minimum loading time for errors
+      const elapsedTime = Date.now() - startTime
+      const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime)
+
+      if (remainingTime > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remainingTime))
+      }
+
       setError(err instanceof Error ? err.message : "An error occurred")
       setWeatherData(null)
     } finally {
@@ -58,6 +80,8 @@ export default function WeatherReporter() {
     setLocationLoading(true)
     setError("")
 
+    const startTime = Date.now()
+
     try {
       const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`)
       const data = await response.json()
@@ -66,9 +90,26 @@ export default function WeatherReporter() {
         throw new Error(data.error || "Failed to fetch weather data")
       }
 
+      // Calculate remaining time to meet minimum loading duration
+      const elapsedTime = Date.now() - startTime
+      const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime)
+
+      // Wait for remaining time if needed
+      if (remainingTime > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remainingTime))
+      }
+
       setWeatherData(data)
       setIsUserLocation(true)
     } catch (err) {
+      //  apply minimum loading time for errors
+      const elapsedTime = Date.now() - startTime
+      const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime)
+
+      if (remainingTime > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remainingTime))
+      }
+
       setError(err instanceof Error ? err.message : "An error occurred")
       setWeatherData(null)
     } finally {
@@ -147,7 +188,7 @@ export default function WeatherReporter() {
   }
 
   const getBackgroundGradient = () => {
-    if (!weatherData?.weather?.[0]) return "from-blue-100 to-blue-200"
+    if (!weatherData?.weather?.[0]) return "from-blue-400 to-blue-300"
 
     const weatherMain = weatherData.weather[0].main.toLowerCase()
     const hour = new Date().getHours()
@@ -176,7 +217,7 @@ export default function WeatherReporter() {
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${getBackgroundGradient()} transition-all duration-1000`}>
-      {/* Background Pattern */}
+   
       <div className="absolute inset-0 bg-black/10"></div>
       <div className="absolute inset-0 opacity-30">
         <div
@@ -190,32 +231,35 @@ export default function WeatherReporter() {
 
       <div className="relative z-10 p-4 min-h-screen">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
+          
           <div className="text-center mb-8 pt-8">
             <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">Weather Reporter</h1>
             <p className="text-white/80 text-lg">Your personal weather companion</p>
           </div>
 
           {/* Search Section */}
-          <div className="bg-white/20 backdrop-blur-md rounded-3xl p-6 mb-6 shadow-2xl border border-white/30">
+          {/* Search Section */}
+          <div className="bg-white/20 backdrop-blur-md rounded-3xl p-4 sm:p-6 mb-6 shadow-2xl border border-white/30">
             <form onSubmit={handleSubmit} className="mb-4">
-              <div className="flex gap-3">
+              {/* Mobile: Stack vertically, Desktop: Side by side */}
+              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
                   <input
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     placeholder="Search for any city..."
-                    className="w-full px-6 py-4 bg-white/90 backdrop-blur-sm rounded-2xl border-0 focus:outline-none focus:ring-4 focus:ring-white/50 text-gray-800 placeholder-gray-500 text-lg shadow-lg"
+                    className="w-full px-4 sm:px-6 py-3 sm:py-4 pr-12 bg-white/90 backdrop-blur-sm rounded-2xl border-0 focus:outline-none focus:ring-4 focus:ring-white/50 text-gray-800 placeholder-gray-500 text-base sm:text-lg shadow-lg"
                   />
-                  <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-8 py-4 bg-white/90 hover:bg-white text-gray-800 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white/90 hover:bg-white text-gray-800 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
                 >
-                  {loading ? "Searching..." : "Search"}
+                  <Search className="w-4 h-4 sm:hidden" />
+                  <span>{loading ? "Searching..." : "Search"}</span>
                 </button>
               </div>
             </form>
@@ -225,12 +269,13 @@ export default function WeatherReporter() {
               <button
                 onClick={getUserLocation}
                 disabled={locationLoading}
-                className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
               >
-                <MapPin className="w-5 h-5" />
-                {locationLoading ? "Getting Location..." : "Use My Location"}
+                <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">{locationLoading ? "Getting Location..." : "Use My Location"}</span>
+                <span className="sm:hidden">{locationLoading ? "Getting..." : "My Location"}</span>
               </button>
-              <p className="text-white/80 text-sm mt-3">
+              <p className="text-white/80 text-xs sm:text-sm mt-2 sm:mt-3 px-2">
                 {isUserLocation ? "📍 Your current location" : "📍 Default: Colombo, Sri Lanka"}
               </p>
             </div>
@@ -244,29 +289,76 @@ export default function WeatherReporter() {
           )}
 
           {/* Loading State */}
-          {loading && !weatherData && (
+          {(loading || locationLoading) && !weatherData && (
             <div className="bg-white/20 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/30">
-              <div className="animate-pulse">
-                <div className="h-8 bg-white/30 rounded-2xl mb-8"></div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="bg-white/20 rounded-2xl p-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-white/30 rounded-full"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-white/30 rounded mb-3"></div>
-                          <div className="h-8 bg-white/30 rounded"></div>
+              <div className="flex flex-col items-center justify-center space-y-6">
+                {/* Weather Loading Animation */}
+                <div className="relative">
+                  {/* Spinning Sun */}
+                  <div className="animate-spin" style={{ animationDuration: "3s" }}>
+                    <Sun className="w-16 h-16 text-yellow-300" />
+                  </div>
+                  {/* Floating Clouds */}
+                  <div className="absolute -top-2 -right-2 animate-bounce" style={{ animationDuration: "2s" }}>
+                    <Cloud className="w-8 h-8 text-white/60" />
+                  </div>
+                  <div className="absolute -bottom-2 -left-2 animate-pulse" style={{ animationDuration: "1.5s" }}>
+                    <Droplets className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+
+                {/* Loading Text */}
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                    {locationLoading ? "Getting Your Location" : "Getting Weather Data"}
+                  </h3>
+                  <p className="text-white/80">
+                    {locationLoading
+                      ? "Please wait while we determine your location..."
+                      : "Please wait while we fetch the latest weather information..."}
+                  </p>
+                </div>
+
+                {/* Animated Progress Dots */}
+                <div className="flex space-x-2">
+                  <div
+                    className="w-3 h-3 bg-white/60 rounded-full animate-bounce"
+                    style={{ animationDelay: "0ms", animationDuration: "1s" }}
+                  ></div>
+                  <div
+                    className="w-3 h-3 bg-white/60 rounded-full animate-bounce"
+                    style={{ animationDelay: "200ms", animationDuration: "1s" }}
+                  ></div>
+                  <div
+                    className="w-3 h-3 bg-white/60 rounded-full animate-bounce"
+                    style={{ animationDelay: "400ms", animationDuration: "1s" }}
+                  ></div>
+                </div>
+
+                {/* Weather Cards Skeleton */}
+                <div className="w-full mt-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className="bg-white/10 rounded-2xl p-6 animate-pulse"
+                        style={{ animationDuration: `${1.5 + i * 0.2}s` }}
+                      >
+                        <div className="flex flex-col items-center space-y-3">
+                          <div className="w-12 h-12 bg-white/20 rounded-full"></div>
+                          <div className="h-4 w-20 bg-white/20 rounded"></div>
+                          <div className="h-8 w-16 bg-white/20 rounded"></div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {/* Weather Data Display */}
-          {weatherData && !loading && (
+          {weatherData && !loading && !locationLoading && (
             <div className="space-y-6">
               {/* City Name Header */}
               <div className="text-center">
@@ -274,7 +366,6 @@ export default function WeatherReporter() {
                 <p className="text-white/90 text-xl capitalize">{weatherData.weather?.[0]?.description}</p>
               </div>
 
-              {/* Weather Stats Grid - Now includes main temperature */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Main Temperature */}
                 <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
@@ -321,7 +412,7 @@ export default function WeatherReporter() {
                 </div>
               </div>
 
-              {/* Footer */}
+          
               <div className="text-center text-white/60 text-sm">
                 <p>Last updated: {new Date().toLocaleTimeString()}</p>
               </div>
