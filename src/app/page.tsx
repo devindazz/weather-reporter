@@ -188,7 +188,7 @@ export default function WeatherReporter() {
   }
 
   const getBackgroundGradient = () => {
-    if (!weatherData?.weather?.[0]) return "from-blue-400 to-blue-600"
+    if (!weatherData?.weather?.[0]) return "from-blue-400 to-blue-300"
 
     const weatherMain = weatherData.weather[0].main.toLowerCase()
     const hour = new Date().getHours()
@@ -299,7 +299,7 @@ export default function WeatherReporter() {
                     <Cloud className="w-8 h-8 text-white/60" />
                   </div>
                   <div className="absolute -bottom-2 -left-2 animate-pulse" style={{ animationDuration: "1.5s" }}>
-                    <Droplets className="w-6 h-6 text-blue-300" />
+                    <Droplets className="w-6 h-6 text-white" />
                   </div>
                 </div>
 
